@@ -21,22 +21,26 @@ public class FlexRegistService {
     private final FlexItemRepository flexItemRepository;
 
     @Autowired
-    JwpTokenGenerator jwpTokenGenerator;
+    JwpTokenGenerator tokenGenerator;
 
     @Autowired
     RandomMoneyDevider randomMoneyDevider;
 
     @Transactional
-    public String registFlex(FlexRegistRequestDto requestDto) throws Exception {
-        String token = jwpTokenGenerator.getToken(requestDto);
+    public String registFlex(FlexRegistRequestDto requestDto) {
+        String token = tokenGenerator.getToken(requestDto);
         requestDto.setToken(token);
         flexRepository.save(requestDto.toEntity());
 
         List<Long> dividedMoneys = randomMoneyDevider.getDevidedMoneys(requestDto);
-        for(Long dividedMoney : dividedMoneys) {
-            FlexItem flexItem = new FlexItem(token, dividedMoney);
-            flexItemRepository.save(flexItem);
-        }
+
+        dividedMoneys.stream()
+                .forEach(dividedMoney -> flexItemRepository.save(
+                        FlexItem.builder()
+                        .token(token)
+                        .money(dividedMoney)
+                        .build())
+                );
         return token;
     }
 }

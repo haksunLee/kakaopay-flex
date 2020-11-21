@@ -1,5 +1,7 @@
 package com.kakaopay.flex.util;
 
+import com.kakaopay.flex.constants.ErrorCode;
+import com.kakaopay.flex.exception.FlexException;
 import com.kakaopay.flex.web.dto.FlexRegistRequestDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -47,12 +49,14 @@ public class JwpTokenGenerator {
         return token;
     }
 
-    public boolean isValidateToken(String token) {
+    public void checkValidateToken(String token) throws FlexException {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
+            if (claims.getBody().getExpiration().before(new Date())) {
+                throw new FlexException(ErrorCode.FLEX_EXPIRATION);
+            }
         } catch (Exception e) {
-            return false;
+            throw new FlexException(ErrorCode.FLEX_EXPIRATION);
         }
     }
 }

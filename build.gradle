@@ -24,6 +24,10 @@ repositories {
     jcenter()
 }
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation 'org.jetbrains:annotations:19.0.0'
     compile('org.springframework.boot:spring-boot-starter-web')
@@ -39,4 +43,5 @@ dependencies {
     compile("org.mariadb.jdbc:mariadb-java-client")
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile ('org.junit.jupiter:junit-jupiter:5.6.0')
 }

@@ -17,7 +17,7 @@ public class FlexSearchController {
     public FlexInfoResponseDto getFlexInfo(
             @RequestHeader(Header.USER_ID) Long userId,
             @RequestHeader(Header.ROOM_ID) String roomId,
-            @RequestHeader(Header.TOKEN) String token) throws Exception {
+            @RequestHeader(Header.TOKEN) String token) {
         return flexSearchService.getFlexInfo(FlexRequestDto.builder()
                 .token(token)
                 .userId(userId)

@@ -1,6 +1,8 @@
 package com.kakaopay.flex.domain.entity;
 
+import com.kakaopay.flex.constants.ErrorCode;
 import com.kakaopay.flex.domain.BaseTimeEntity;
+import com.kakaopay.flex.exception.FlexException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,25 +33,37 @@ public class Flex extends BaseTimeEntity {
     @JoinColumn(name = "token")
     private List<FlexItem> flexItems;
 
-    public boolean isEqualRoomId(String roomId) {
-        return roomId.equals(this.roomId);
+    public void checkEqualRoomId(String roomId) {
+        if (!roomId.equals(this.roomId)) {
+           throw new FlexException(ErrorCode.NOT_INCLUDE_SAME_ROOM);
+        }
     }
 
-    public boolean isEqualCreateUserId(Long userId) {
-        return userId.equals(this.createUserId);
+    public void checkEqualWithCreateUser(Long userId) {
+        if (!userId.equals(this.createUserId)) {
+            throw new FlexException(ErrorCode.USER_IS_NOT_CREATE_USER);
+        }
     }
 
-    public boolean isReceivedMoneyBefore(Long userId) {
-        return this.flexItems.stream()
+    public void checkNotEqualWithCreateUser(Long userId) {
+        if (userId.equals(this.createUserId)) {
+            throw new FlexException(ErrorCode.USER_IS_CREATE_USER);
+        }
+    }
+
+    public void checkNotReceivedMoneyBefore(Long userId) {
+        if (this.flexItems.stream()
                 .filter(FlexItem::isReceived)
-                .filter(item -> item.getReceiverId().equals(userId))
-                .count() > 0;
+                .anyMatch(item -> item.getReceiverId().equals(userId))) {
+            throw new FlexException(ErrorCode.USER_GET_BEFORE_ALREADY);
+        }
     }
 
-    public boolean isCompleted() {
-        return this.flexItems.stream()
-                .filter(FlexItem::isNotReceived)
-                .count() == 0;
+    public void checkNotCompleted() {
+        if (this.flexItems.stream()
+                .allMatch(FlexItem::isReceived)) {
+            throw new FlexException(ErrorCode.FLEX_COMPLETE_ALREADY);
+        }
     }
 
     @Builder

@@ -3,9 +3,9 @@ package com.kakaopay.flex.web;
 import com.kakaopay.flex.constants.ErrorCode;
 import com.kakaopay.flex.constants.Header;
 import com.kakaopay.flex.constants.TestParams;
-import com.kakaopay.flex.domain.entity.FlexItem;
 import com.kakaopay.flex.domain.repository.FlexItemRepository;
 import com.kakaopay.flex.domain.repository.FlexRepository;
+import com.kakaopay.flex.service.FlexItemUpdateService;
 import com.kakaopay.flex.service.FlexRegistService;
 import com.kakaopay.flex.util.JwpTokenGenerator;
 import com.kakaopay.flex.web.dto.FlexRegistRequestDto;
@@ -25,20 +25,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class FlexItemUpdateControllerTest {
+public class FlexSearchControllerTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlexItemUpdateControllerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlexSearchControllerTest.class);
 
     @LocalServerPort
     private int port;
@@ -54,6 +53,9 @@ public class FlexItemUpdateControllerTest {
 
     @Autowired
     private FlexRegistService flexRegistService;
+
+    @Autowired
+    private FlexItemUpdateService flexItemUpdateService;
 
     @Autowired
     private WebApplicationContext context;
@@ -80,129 +82,85 @@ public class FlexItemUpdateControllerTest {
         return flexRegistService.registFlex(registRequestDto);
     }
 
-    @Test
-    @DisplayName("정상적으로 받기 처리를 합니다.")
-    public void updateFlexItem_normalCase() throws Exception {
-        //given
-        String token = registFlex();
+    private void updateFlexItem(String token) {
         FlexRequestDto requestDto = FlexRequestDto.builder()
                 .token(token)
                 .userId(TestParams.receiverUserId)
-                .roomId(TestParams.receiverRoomId)
+                .roomId(TestParams.regRoomId)
                 .build();
 
-        String url = "http://localhost:" + port + "/api/v1/flex/item";
+        flexItemUpdateService.takeFlexItem(requestDto);
+    }
+
+    @Test
+    @DisplayName("정상적으로 뿌리기 조회 처리를 합니다.")
+    public void searchFlex_normalCase() throws Exception {
+        //given
+        String token = registFlex();
+        updateFlexItem(token);
+        FlexRequestDto requestDto = FlexRequestDto.builder()
+                .token(token)
+                .userId(TestParams.regUserId)
+                .roomId(TestParams.regRoomId)
+                .build();
+
+        String url = "http://localhost:" + port + "/api/v1/flex";
 
         //when
-        mvc.perform(put(url)
+        mvc.perform(get(url)
                 .header(Header.USER_ID, requestDto.getUserId())
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
-
-        //then
-        List<FlexItem> all = flexItemRepository.findAll();
-        assertThat(all.stream().anyMatch(FlexItem::isReceived));
-        assertThat(all.stream().anyMatch(item -> item.getReceiverId().equals(TestParams.receiverUserId)));
+                .andExpect(status().isOk()).andDo(print());
     }
 
 
     @Test
-    @DisplayName("받기 처리 시, 잘못된 Token 정보를 던집니다.")
+    @DisplayName("조회 처리 시, 잘못된 Token 정보를 던집니다.")
     public void updateFlexItem_abnormalCase01() throws Exception {
+        //given
         String token = registFlex();
-
+        updateFlexItem(token);
         FlexRequestDto requestDto = FlexRequestDto.builder()
                 .token("another.token.value")
                 .userId(TestParams.receiverUserId)
                 .roomId(TestParams.receiverRoomId)
                 .build();
 
-        String url = "http://localhost:" + port + "/api/v1/flex/item";
+        String url = "http://localhost:" + port + "/api/v1/flex";
 
         //when
-        mvc.perform(put(url)
+        mvc.perform(get(url)
                 .header(Header.USER_ID, requestDto.getUserId())
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_EXPIRATION.getCode())));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_NOT_FOUND.getCode())));
     }
 
-
     @Test
-    @DisplayName("받기 처리 시, 잘못된 Room 정보를 던집니다.")
+    @DisplayName("조회 처리 시, 등록자가 아닌 User값을 던집니다.")
     public void updateFlexItem_abnormalCase02() throws Exception {
+        //given
         String token = registFlex();
-
+        updateFlexItem(token);
         FlexRequestDto requestDto = FlexRequestDto.builder()
                 .token(token)
-                .userId(TestParams.receiverUserId)
-                .roomId("another-room")
-                .build();
-
-        String url = "http://localhost:" + port + "/api/v1/flex/item";
-
-        //when
-        mvc.perform(put(url)
-                .header(Header.USER_ID, requestDto.getUserId())
-                .header(Header.ROOM_ID, requestDto.getRoomId())
-                .header(Header.TOKEN, requestDto.getToken())
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.NOT_INCLUDE_SAME_ROOM.getCode())));
-    }
-
-
-    @Test
-    @DisplayName("받기 처리 시, 뿌리기 등록자와 동일한 User 정보를 던집니다.")
-    public void updateFlexItem_abnormalCase03() throws Exception {
-        String token = registFlex();
-
-        FlexRequestDto requestDto = FlexRequestDto.builder()
-                .token(token)
-                .userId(TestParams.regUserId)
+                .userId(99L)
                 .roomId(TestParams.receiverRoomId)
                 .build();
 
-        String url = "http://localhost:" + port + "/api/v1/flex/item";
+        String url = "http://localhost:" + port + "/api/v1/flex";
 
         //when
-        mvc.perform(put(url)
+        mvc.perform(get(url)
                 .header(Header.USER_ID, requestDto.getUserId())
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_CREATE_USER.getCode())));
-    }
-
-    @Test
-    @DisplayName("받기 처리 시, 이전에 이미 받은 사용자 정보를 던집니다.")
-    public void updateFlexItem_abnormalCase04() throws Exception {
-        String token = registFlex();
-
-        FlexItem flexItem = flexItemRepository.findAll().get(0);
-        flexItem.updateReceiverId(TestParams.receiverUserId);
-        flexItemRepository.save(flexItem);
-
-        FlexRequestDto requestDto = FlexRequestDto.builder()
-                .token(token)
-                .userId(TestParams.receiverUserId)
-                .roomId(TestParams.receiverRoomId)
-                .build();
-
-        String url = "http://localhost:" + port + "/api/v1/flex/item";
-
-        //when
-        mvc.perform(put(url)
-                .header(Header.USER_ID, requestDto.getUserId())
-                .header(Header.ROOM_ID, requestDto.getRoomId())
-                .header(Header.TOKEN, requestDto.getToken())
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.USER_GET_BEFORE_ALREADY.getCode())));
+                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_NOT_CREATE_USER.getCode())));
     }
 }

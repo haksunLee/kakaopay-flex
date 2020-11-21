@@ -1,8 +1,10 @@
 package com.kakaopay.flex.service;
 
+import com.kakaopay.flex.constants.ErrorCode;
 import com.kakaopay.flex.domain.entity.Flex;
 import com.kakaopay.flex.domain.entity.FlexItem;
 import com.kakaopay.flex.domain.repository.FlexRepository;
+import com.kakaopay.flex.exception.FlexException;
 import com.kakaopay.flex.web.dto.FlexInfoResponseDto;
 import com.kakaopay.flex.web.dto.FlexItemInfoDto;
 import com.kakaopay.flex.web.dto.FlexRequestDto;
@@ -19,14 +21,12 @@ public class FlexSearchService {
     private final FlexRepository flexRepository;
 
     @Transactional(readOnly = true)
-    public FlexInfoResponseDto getFlexInfo(FlexRequestDto requestDto) throws Exception {
+    public FlexInfoResponseDto getFlexInfo(FlexRequestDto requestDto) {
         LocalDateTime createdDate = LocalDateTime.now().minusDays(7);
         Flex flex = flexRepository.findByTokenAndCreatedDateGreaterThan(requestDto.getToken(), createdDate)
-                 .orElseThrow(() -> new Exception("해당하는 뿌리기 메시지를 찾을 수 없습니다."));
+                .orElseThrow(() -> new FlexException(ErrorCode.FLEX_NOT_FOUND));
 
-        if (!flex.isEqualCreateUserId(requestDto.getUserId())) {
-            throw new Exception("뿌린 사람 자신만 조회를 할 수 있습니다.");
-        }
+        flex.checkEqualWithCreateUser(requestDto.getUserId());
 
         return FlexInfoResponseDto.builder()
                 .createdDate(flex.getCreatedDate())

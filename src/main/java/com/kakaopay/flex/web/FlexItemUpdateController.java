@@ -16,7 +16,7 @@ public class FlexItemUpdateController {
     public Long takeFlexItem(
             @RequestHeader(Header.USER_ID) Long userId,
             @RequestHeader(Header.ROOM_ID) String roomId,
-            @RequestHeader(Header.TOKEN) String token) throws Exception {
+            @RequestHeader(Header.TOKEN) String token) {
         return flexItemUpdateService.takeFlexItem(FlexRequestDto.builder()
                 .token(token)
                 .userId(userId)

@@ -13,7 +13,7 @@ public class FlexRegistController {
     private final FlexRegistService flexRegistService;
 
     @PostMapping("/api/v1/flex")
-    public String registFlex(
+    public String registFlex (
             @RequestHeader(Header.USER_ID) Long createUserId,
             @RequestHeader(Header.ROOM_ID) String roomId,
             @RequestBody FlexRegistRequestDto requestDto) throws Exception {
