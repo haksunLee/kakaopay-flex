@@ -4,8 +4,6 @@ import com.kakaopay.flex.exception.FlexException;
 import com.kakaopay.flex.exception.InvalidParameterException;
 import com.kakaopay.flex.exception.dto.ErrorResponseDto;
 import com.kakaopay.flex.exception.entity.CustomFieldError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -19,11 +17,9 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ControllerExceptionHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<ErrorResponseDto> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        logger.error("handleHttpRequestMethodNotSupportedException", e);
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(HttpStatus.METHOD_NOT_ALLOWED.value())
@@ -34,7 +30,6 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(InvalidParameterException.class)
     protected ResponseEntity<ErrorResponseDto> handleInvalidParameterException(InvalidParameterException e) {
-        logger.error("handleInvalidParameterException", e);
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(e.getErrorCode().getStatus())
@@ -53,7 +48,6 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(FlexException.class)
     protected ResponseEntity<ErrorResponseDto> handleFlexApiException(FlexException e) {
-        logger.error("handleAllException", e);
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(e.getErrorCode().getStatus())
@@ -65,7 +59,6 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponseDto> handleException(Exception e) {
-        logger.error("handleException", e);
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

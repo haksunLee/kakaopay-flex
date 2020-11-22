@@ -10,8 +10,7 @@ import com.kakaopay.flex.domain.repository.FlexRepository;
 import com.kakaopay.flex.service.FlexRegistService;
 import com.kakaopay.flex.util.JwpTokenGenerator;
 import com.kakaopay.flex.web.dto.FlexRegistRequestDto;
-import com.kakaopay.flex.web.dto.FlexRequestDto;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -53,10 +51,12 @@ public class FlexRegistControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @After
-    public void tearDown() throws Exception {
-        flexRepository.deleteAll();
-        flexItemRepository.deleteAll();
+    @AfterEach
+    public void tearDown() {
+        flexItemRepository.deleteAllData();
+        flexRepository.deleteAllData();
+        assertThat(flexItemRepository.count()).isEqualTo(0);
+        assertThat(flexRepository.count()).isEqualTo(0);
     }
 
     @Test
