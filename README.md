@@ -56,8 +56,8 @@ $ java -jar build/libs/kakaopay-flex-0.0.1-SNAPSHOT.jar
     - Scalability
 
 ### Architecture
-- 다수의 서버에 다수의 인스턴스로 동작가능 하도록 MSA 구현을 위한 Spring Boot Framework을 채택하였다. 
-REST API 기반으로 Client 또는 타 서비스와 손쉽게 인터페이스가 가능하다. 
+- 다수의 서버에 다수의 인스턴스로 동작가능 하도록 MSA 구현이 필수적이다. 이를 위해 구축 및 서비스가 간결한 Spring Boot를 채택하였으며 
+REST API 기반으로 Client 또는 타 서비스와 손쉽게 인터페이스가 가능하도록 하였다.  
 - Stateless한 서버를 구성하기 위해 토근(JWT) 기반 인증 방식을 채택하여 Scale out 방식의 확장이 가능하도록 하였다.
 
     ![architecture-image](./architecture01.png)
