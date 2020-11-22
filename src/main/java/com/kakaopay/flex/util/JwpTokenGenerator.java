@@ -53,10 +53,10 @@ public class JwpTokenGenerator {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             if (claims.getBody().getExpiration().before(new Date())) {
-                throw new FlexException(ErrorCode.FLEX_EXPIRATION);
+                throw new FlexException(ErrorCode.FLEX_EXPIRATION_ERROR);
             }
         } catch (Exception e) {
-            throw new FlexException(ErrorCode.FLEX_EXPIRATION);
+            throw new FlexException(ErrorCode.FLEX_EXPIRATION_ERROR);
         }
     }
 }

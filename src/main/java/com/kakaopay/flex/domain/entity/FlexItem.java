@@ -46,7 +46,7 @@ public class FlexItem extends BaseTimeEntity {
         return Objects.isNull(this.receiverId);
     }
 
-    public void updateReceiverId(Long receiverId) {
+    public void updateReceiverId(long receiverId) {
         this.receiverId = receiverId;
     }
 

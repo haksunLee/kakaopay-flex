@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FlexItemInfoDto {
 
-    private Long money;
-    private Long receiverId;
+    private long money;
+    private long receiverId;
 
     @Builder
-    public FlexItemInfoDto(Long money, Long receiverId) {
+    public FlexItemInfoDto(long money, long receiverId) {
         this.money = money;
         this.receiverId = receiverId;
     }

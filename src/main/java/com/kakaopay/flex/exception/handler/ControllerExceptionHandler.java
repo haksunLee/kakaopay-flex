@@ -1,9 +1,10 @@
 package com.kakaopay.flex.exception.handler;
 
 import com.kakaopay.flex.exception.FlexException;
-import com.kakaopay.flex.exception.InvalidParameterException;
+import com.kakaopay.flex.exception.InternalServerException;
 import com.kakaopay.flex.exception.dto.ErrorResponseDto;
 import com.kakaopay.flex.exception.entity.CustomFieldError;
+import com.kakaopay.flex.web.FlexResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -19,20 +20,19 @@ import java.util.stream.Collectors;
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    protected ResponseEntity<ErrorResponseDto> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+    protected ResponseEntity<FlexResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(HttpStatus.METHOD_NOT_ALLOWED.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.METHOD_NOT_ALLOWED);
+        return ResponseEntity.ok(new FlexResponse(responseDto));
     }
 
-    @ExceptionHandler(InvalidParameterException.class)
-    protected ResponseEntity<ErrorResponseDto> handleInvalidParameterException(InvalidParameterException e) {
+    @ExceptionHandler(InternalServerException.class)
+    protected ResponseEntity<FlexResponse>  handleInvalidParameterException(InternalServerException e) {
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
-                .status(e.getErrorCode().getStatus())
                 .message(e.toString())
                 .customFieldErrors(
                         e.getErrors().getFieldErrors().stream()
@@ -43,27 +43,26 @@ public class ControllerExceptionHandler {
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.resolve(e.getErrorCode().getStatus()));
+        return ResponseEntity.ok(new FlexResponse(responseDto));
     }
 
     @ExceptionHandler(FlexException.class)
-    protected ResponseEntity<ErrorResponseDto> handleFlexApiException(FlexException e) {
+    protected ResponseEntity<FlexResponse> handleFlexApiException(FlexException e) {
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
-                .status(e.getErrorCode().getStatus())
                 .code(e.getErrorCode().getCode())
-                .message(e.toString())
+                .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.resolve(e.getErrorCode().getStatus()));
+        return ResponseEntity.ok(new FlexResponse(responseDto));
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponseDto> handleException(Exception e) {
+    protected ResponseEntity<FlexResponse> handleException(Exception e) {
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message(e.toString())
                 .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.ok(new FlexResponse(responseDto));
     }
 }

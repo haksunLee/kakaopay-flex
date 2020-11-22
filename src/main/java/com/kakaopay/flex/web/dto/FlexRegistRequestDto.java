@@ -1,22 +1,23 @@
 package com.kakaopay.flex.web.dto;
 
 import com.kakaopay.flex.domain.entity.Flex;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 public class FlexRegistRequestDto {
     @Setter
     private String token;
+
     @Setter
     private String roomId;
-    private Long amount;
+
+    private long amount;
+
     private int count;
+
     @Setter
-    private Long createUserId;
+    private long createUserId;
 
     @Builder
     public FlexRegistRequestDto(String token, String roomId, long amount, int count, long createUserId) {

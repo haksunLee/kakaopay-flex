@@ -71,7 +71,7 @@ public class FlexSearchControllerTest {
                 .createUserId(TestParams.regUserId)
                 .build();
 
-        return flexRegistService.registFlex(registRequestDto);
+        return flexRegistService.registFlex(registRequestDto).get("token");
     }
 
     private void updateFlexItem(String token) {
@@ -104,13 +104,14 @@ public class FlexSearchControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk()).andDo(print());
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
 
     @Test
     @DisplayName("조회 처리 시, 잘못된 Token 정보를 던집니다.")
-    public void updateFlexItem_abnormalCase01() throws Exception {
+    public void searchFlexItem_abnormalCase01() throws Exception {
         //given
         String token = registFlex();
         updateFlexItem(token);
@@ -128,13 +129,13 @@ public class FlexSearchControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_NOT_FOUND.getCode())));
+                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_NOT_FOUND.getCode())))
+                .andDo(print());
     }
 
     @Test
     @DisplayName("조회 처리 시, 등록자가 아닌 User값을 던집니다.")
-    public void updateFlexItem_abnormalCase02() throws Exception {
+    public void searchFlexItem_abnormalCase02() throws Exception {
         //given
         String token = registFlex();
         updateFlexItem(token);
@@ -152,7 +153,7 @@ public class FlexSearchControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_NOT_CREATE_USER.getCode())));
+                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_NOT_CREATE_USER.getCode())))
+                .andDo(print());
     }
 }

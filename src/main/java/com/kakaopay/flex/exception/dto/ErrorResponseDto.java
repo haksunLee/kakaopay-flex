@@ -6,12 +6,10 @@ import com.kakaopay.flex.exception.entity.CustomFieldError;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 public class ErrorResponseDto {
-    private LocalDateTime timestamp = LocalDateTime.now();
     private int status;
     private String code;
     private String message;

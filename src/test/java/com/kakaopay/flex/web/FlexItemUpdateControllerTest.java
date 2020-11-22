@@ -2,6 +2,7 @@ package com.kakaopay.flex.web;
 
 import com.kakaopay.flex.constants.ErrorCode;
 import com.kakaopay.flex.constants.Header;
+import com.kakaopay.flex.constants.ResponseCode;
 import com.kakaopay.flex.constants.TestParams;
 import com.kakaopay.flex.domain.entity.FlexItem;
 import com.kakaopay.flex.domain.repository.FlexItemRepository;
@@ -27,6 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,7 +71,7 @@ public class FlexItemUpdateControllerTest {
                 .createUserId(TestParams.regUserId)
                 .build();
 
-        return flexRegistService.registFlex(registRequestDto);
+        return flexRegistService.registFlex(registRequestDto).get("token");
     }
 
     @Test
@@ -91,7 +93,8 @@ public class FlexItemUpdateControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(print());
 
         //then
         List<FlexItem> all = flexItemRepository.findAll();
@@ -119,8 +122,9 @@ public class FlexItemUpdateControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_EXPIRATION.getCode())));
+                .andExpect(jsonPath("$.result", is(ResponseCode.FAIL)))
+                .andExpect(jsonPath("$.code", is(ErrorCode.FLEX_EXPIRATION_ERROR.getCode())))
+                .andDo(print());
     }
 
 
@@ -143,8 +147,9 @@ public class FlexItemUpdateControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.NOT_INCLUDE_SAME_ROOM.getCode())));
+                .andExpect(jsonPath("$.result", is(ResponseCode.FAIL)))
+                .andExpect(jsonPath("$.code", is(ErrorCode.NOT_SAME_ROOM_FAIL.getCode())))
+                .andDo(print());
     }
 
 
@@ -167,8 +172,9 @@ public class FlexItemUpdateControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_CREATE_USER.getCode())));
+                .andExpect(jsonPath("$.result", is(ResponseCode.FAIL)))
+                .andExpect(jsonPath("$.code", is(ErrorCode.USER_IS_CREATE_USER.getCode())))
+                .andDo(print());
     }
 
     @Test
@@ -194,7 +200,8 @@ public class FlexItemUpdateControllerTest {
                 .header(Header.ROOM_ID, requestDto.getRoomId())
                 .header(Header.TOKEN, requestDto.getToken())
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code", is(ErrorCode.USER_GET_BEFORE_ALREADY.getCode())));
+                .andExpect(jsonPath("$.result", is(ResponseCode.FAIL)))
+                .andExpect(jsonPath("$.code", is(ErrorCode.USER_GET_BEFORE_FAIL.getCode())))
+                .andDo(print());
     }
 }

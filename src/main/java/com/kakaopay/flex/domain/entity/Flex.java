@@ -35,39 +35,39 @@ public class Flex extends BaseTimeEntity {
 
     public void checkEqualRoomId(String roomId) {
         if (!roomId.equals(this.roomId)) {
-           throw new FlexException(ErrorCode.NOT_INCLUDE_SAME_ROOM);
+           throw new FlexException(ErrorCode.NOT_SAME_ROOM_FAIL);
         }
     }
 
-    public void checkEqualWithCreateUser(Long userId) {
-        if (!userId.equals(this.createUserId)) {
+    public void checkEqualWithCreateUser(long userId) {
+        if (userId != this.createUserId) {
             throw new FlexException(ErrorCode.USER_IS_NOT_CREATE_USER);
         }
     }
 
-    public void checkNotEqualWithCreateUser(Long userId) {
-        if (userId.equals(this.createUserId)) {
+    public void checkNotEqualWithCreateUser(long userId) {
+        if (userId == this.createUserId) {
             throw new FlexException(ErrorCode.USER_IS_CREATE_USER);
         }
     }
 
-    public void checkNotReceivedMoneyBefore(Long userId) {
+    public void checkNotReceivedMoneyBefore(long userId) {
         if (this.flexItems.stream()
                 .filter(FlexItem::isReceived)
-                .anyMatch(item -> item.getReceiverId().equals(userId))) {
-            throw new FlexException(ErrorCode.USER_GET_BEFORE_ALREADY);
+                .anyMatch(item -> item.getReceiverId() == userId)) {
+            throw new FlexException(ErrorCode.USER_GET_BEFORE_FAIL);
         }
     }
 
     public void checkNotCompleted() {
         if (this.flexItems.stream()
                 .allMatch(FlexItem::isReceived)) {
-            throw new FlexException(ErrorCode.FLEX_COMPLETE_ALREADY);
+            throw new FlexException(ErrorCode.FLEX_STATUS_COMPLETE);
         }
     }
 
     @Builder
-    public Flex(String token, String roomId, Long amount, int count, Long createUserId, List<FlexItem> flexItems) {
+    public Flex(String token, String roomId, long amount, int count, long createUserId, List<FlexItem> flexItems) {
         this.token = token;
         this.roomId = roomId;
         this.amount = amount;

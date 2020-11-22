@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @Service
 public class FlexItemUpdateService {
@@ -23,7 +26,7 @@ public class FlexItemUpdateService {
     JwpTokenGenerator tokenGenerator;
 
     @Transactional
-    public Long takeFlexItem(FlexRequestDto requestDto) {
+    public Map<String, Long> takeFlexItem(FlexRequestDto requestDto) {
 
         tokenGenerator.checkValidateToken(requestDto.getToken());
 
@@ -44,6 +47,9 @@ public class FlexItemUpdateService {
         flexItem.updateReceiverId(requestDto.getUserId());
         flexItemRepository.save(flexItem);
 
-        return flexItem.getMoney();
+        Map<String, Long> resultMap = new HashMap<>();
+        resultMap.put("money", flexItem.getMoney());
+
+        return resultMap;
     }
 }

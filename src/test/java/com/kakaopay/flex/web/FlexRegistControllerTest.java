@@ -1,7 +1,9 @@
 package com.kakaopay.flex.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaopay.flex.constants.ErrorCode;
 import com.kakaopay.flex.constants.Header;
+import com.kakaopay.flex.constants.ResponseCode;
 import com.kakaopay.flex.constants.TestParams;
 import com.kakaopay.flex.domain.entity.Flex;
 import com.kakaopay.flex.domain.entity.FlexItem;
@@ -25,7 +27,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -76,7 +81,9 @@ public class FlexRegistControllerTest {
                 .header(Header.ROOM_ID, TestParams.regRoomId)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(requestDto)))
-                .andExpect(status().isOk());
+                .andExpect(jsonPath("$.result", is(ResponseCode.SUCCESS)))
+                .andExpect(status().isOk())
+                .andDo(print());
 
         //then
         List<Flex> result1 = flexRepository.findAll();
@@ -106,6 +113,7 @@ public class FlexRegistControllerTest {
                 .header(Header.USER_ID, TestParams.regUserId)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(requestDto)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(jsonPath("$.result", is(ResponseCode.FAIL)))
+                .andDo(print());
     }
 }

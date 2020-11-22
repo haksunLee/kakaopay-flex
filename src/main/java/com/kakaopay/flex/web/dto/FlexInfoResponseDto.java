@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 public class FlexInfoResponseDto {
     private LocalDateTime createdDate;
-    private Long amount;
-    private Long totalReceivedMoney;
+    private long amount;
+    private long totalReceivedMoney;
     private List<FlexItemInfoDto> receivedItemInfo;
 
     @Builder

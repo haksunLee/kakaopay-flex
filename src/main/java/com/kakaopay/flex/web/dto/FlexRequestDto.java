@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FlexRequestDto {
     private String token;
-    private Long userId;
+    private long userId;
     private String roomId;
 
     @Builder
-    public FlexRequestDto(String token, Long userId, String roomId) {
+    public FlexRequestDto(String token, long userId, String roomId) {
         this.token = token;
         this.userId = userId;
         this.roomId = roomId;

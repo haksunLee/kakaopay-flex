@@ -27,7 +27,7 @@ public class FlexRegistService {
     RandomMoneyDevider randomMoneyDevider;
 
     @Transactional
-    public String registFlex(FlexRegistRequestDto requestDto) {
+    public Map<String, String> registFlex(FlexRegistRequestDto requestDto) {
         String token = tokenGenerator.getToken(requestDto);
         requestDto.setToken(token);
         flexRepository.save(requestDto.toEntity());
@@ -41,6 +41,9 @@ public class FlexRegistService {
                         .money(dividedMoney)
                         .build())
                 );
-        return token;
+
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("token", token);
+        return resultMap;
     }
 }
